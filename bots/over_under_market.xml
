@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="http://www.w3.org/1999/xhtml" collection="false">
+  <variables>
+    <variable type="" id="initial_amt">Initial Amount</variable>
+    <variable type="" id="trade_allowed">Trade Allowed</variable>
+    <variable type="" id="consecutive_losses">Consecutive Losses</variable>
+    <variable type="" id="last_tick">Last Tick</variable>
+    <variable type="" id="tick_history">Tick History</variable>
+    <variable type="" id="digit_history">Digit History</variable>
+    <variable type="" id="under_count">Under Count</variable>
+    <variable type="" id="over_count">Over Count</variable>
+    <variable type="" id="last_signal">Last Signal</variable>
+  </variables>
+
+  <block type="trade" id="trade_over_under" x="-860" y="-260">
+    <field name="MARKET_LIST">synthetic_index</field>
+    <field name="SUBMARKET_LIST">random_index</field>
+    <field name="SYMBOL_LIST">R_100</field>
+    <field name="TRADETYPECAT_LIST">digits</field>
+    <field name="TRADETYPE_LIST">overunder</field>
+    <field name="TYPE_LIST">both</field>
+    <field name="CANDLEINTERVAL_LIST">60</field>
+    <field name="TIME_MACHINE_ENABLED">FALSE</field>
+    <field name="RESTARTONERROR">TRUE</field>
+
+    <statement name="INITIALIZATION">
+      <block type="text_print" id="bot_title_ou">
+        <value name="TEXT">
+          <shadow type="text" id="title_shadow_ou">
+            <field name="TEXT">Over/Under 3 Tick Filter</field>
+          </shadow>
+        </value>
+        <next>
+          <block type="variables_set" id="set_initial_amt_ou">
+            <field name="VAR" id="initial_amt" variabletype="">Initial Amount</field>
+            <value name="VALUE">
+              <block type="math_number" id="initial_amt_number_ou">
+                <field name="NUM">0.35</field>
+              </block>
+            </value>
+            <next>
+              <block type="variables_set" id="set_trade_allowed_ou">
+                <field name="VAR" id="trade_allowed" variabletype="">Trade Allowed</field>
+                <value name="VALUE">
+                  <block type="logic_boolean" id="trade_allowed_true_ou">
+                    <field name="BOOL">TRUE</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="variables_set" id="set_losses_ou">
+                    <field name="VAR" id="consecutive_losses" variabletype="">Consecutive Losses</field>
+                    <value name="VALUE">
+                      <block type="math_number" id="loss_zero_ou">
+                        <field name="NUM">0</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="variables_set" id="set_last_tick_ou">
+                        <field name="VAR" id="last_tick" variabletype="">Last Tick</field>
+                        <value name="VALUE">
+                          <block type="math_number" id="last_tick_zero_ou">
+                            <field name="NUM">0</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="variables_set" id="set_under_count_ou">
+                            <field name="VAR" id="under_count" variabletype="">Under Count</field>
+                            <value name="VALUE">
+                              <block type="math_number" id="under_count_zero_ou">
+                                <field name="NUM">0</field>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="variables_set" id="set_over_count_ou">
+                                <field name="VAR" id="over_count" variabletype="">Over Count</field>
+                                <value name="VALUE">
+                                  <block type="math_number" id="over_count_zero_ou">
+                                    <field name="NUM">0</field>
+                                  </block>
+                                </value>
+                                <next>
+                                  <block type="variables_set" id="set_last_signal_ou">
+                                    <field name="VAR" id="last_signal" variabletype="">Last Signal</field>
+                                    <value name="VALUE">
+                                      <block type="text" id="last_signal_text_ou">
+                                        <field name="TEXT">NONE</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+
+    <statement name="SUBMARKET">
+      <block type="tradeOptions" id="trade_options_ou">
+        <field name="DURATIONTYPE_LIST">t</field>
+        <field name="CURRENCY_LIST">USD</field>
+        <field name="BARRIEROFFSETTYPE_LIST">+</field>
+        <field name="SECONDBARRIEROFFSETTYPE_LIST">-</field>
+        <value name="DURATION">
+          <block type="math_number" id="duration_ou">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+        <value name="AMOUNT">
+          <block type="variables_get" id="amount_var_ou">
+            <field name="VAR" id="initial_amt" variabletype="">Initial Amount</field>
+          </block>
+        </value>
+        <value name="PREDICTION">
+          <shadow type="math_number" id="prediction_shadow_ou">
+            <field name="NUM">4</field>
+          </shadow>
+        </value>
+      </block>
+    </statement>
+  </block>
+
+  <block type="before_purchase" id="before_purchase_ou" collapsed="true" x="-850" y="360">
+    <statement name="BEFOREPURCHASE_STACK">
+      <block type="controls_if" id="if_two_losses_stop_ou">
+        <value name="IF0">
+          <block type="logic_compare" id="loss_count_ge_2_ou">
+            <field name="OP">GTE</field>
+            <value name="A">
+              <block type="variables_get" id="loss_count_var_ou">
+                <field name="VAR" id="consecutive_losses" variabletype="">Consecutive Losses</field>
+              </block>
+            </value>
+            <value name="B">
+              <block type="math_number" id="two_losses_limit_ou">
+                <field name="NUM">2</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <statement name="DO0">
+          <block type="variables_set" id="stop_trade_ou">
+            <field name="VAR" id="trade_allowed" variabletype="">Trade Allowed</field>
+            <value name="VALUE">
+              <block type="logic_boolean" id="stop_false_ou">
+                <field name="BOOL">FALSE</field>
+              </block>
+            </value>
+            <next>
+              <block type="text_print" id="stop_notice_ou">
+                <value name="TEXT">
+                  <shadow type="text" id="stop_notice_text_ou">
+                    <field name="TEXT">2 losses reached. Waiting for a new three-tick condition.</field>
+                  </shadow>
+                </value>
+              </block>
+            </next>
+          </block>
+        </statement>
+        <next>
+          <block type="controls_if" id="if_trade_allowed_ou">
+            <value name="IF0">
+              <block type="logic_compare" id="trade_allowed_true_ou_check">
+                <field name="OP">EQ</field>
+                <value name="A">
+                  <block type="variables_get" id="trade_allowed_var_ou_check">
+                    <field name="VAR" id="trade_allowed" variabletype="">Trade Allowed</field>
+                  </block>
+                </value>
+                <value name="B">
+                  <block type="logic_boolean" id="true_check_ou">
+                    <field name="BOOL">TRUE</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <statement name="DO0">
+              <block type="controls_if" id="if_under_three_ou">
+                <value name="IF0">
+                  <block type="logic_compare" id="under_count_gate_ou">
+                    <field name="OP">GTE</field>
+                    <value name="A">
+                      <block type="variables_get" id="under_count_var_ou">
+                        <field name="VAR" id="under_count" variabletype="">Under Count</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="math_number" id="three_under_ou">
+                        <field name="NUM">3</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <statement name="DO0">
+                  <block type="variables_set" id="set_signal_over_ou">
+                    <field name="VAR" id="last_signal" variabletype="">Last Signal</field>
+                    <value name="VALUE">
+                      <block type="text" id="signal_over_text_ou">
+                        <field name="TEXT">OVER</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="purchase" id="buy_over_ou">
+                        <field name="PURCHASE_LIST">DIGITOVER</field>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+                <next>
+                  <block type="controls_if" id="if_over_three_ou">
+                    <value name="IF0">
+                      <block type="logic_compare" id="over_count_gate_ou">
+                        <field name="OP">GTE</field>
+                        <value name="A">
+                          <block type="variables_get" id="over_count_var_ou">
+                            <field name="VAR" id="over_count" variabletype="">Over Count</field>
+                          </block>
+                        </value>
+                        <value name="B">
+                          <block type="math_number" id="three_over_ou">
+                            <field name="NUM">3</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <statement name="DO0">
+                      <block type="variables_set" id="set_signal_under_ou">
+                        <field name="VAR" id="last_signal" variabletype="">Last Signal</field>
+                        <value name="VALUE">
+                          <block type="text" id="signal_under_text_ou">
+                            <field name="TEXT">UNDER</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="purchase" id="buy_under_ou">
+                            <field name="PURCHASE_LIST">DIGITUNDER</field>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                  </block>
+                </next>
+              </block>
+            </statement>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+
+  <block type="after_purchase" id="after_purchase_ou" collapsed="true" x="-850" y="530">
+    <statement name="AFTERPURCHASE_STACK">
+      <block type="controls_if" id="check_result_loss_ou">
+        <value name="IF0">
+          <block type="contract_check_result" id="loss_condition_ou">
+            <field name="CHECK_RESULT">loss</field>
+          </block>
+        </value>
+        <statement name="DO0">
+          <block type="math_change" id="increment_losses_ou">
+            <field name="VAR" id="consecutive_losses" variabletype="">Consecutive Losses</field>
+            <value name="DELTA">
+              <block type="math_number" id="loss_delta_ou">
+                <field name="NUM">1</field>
+              </block>
+            </value>
+            <next>
+              <block type="variables_set" id="disable_trade_ou">
+                <field name="VAR" id="trade_allowed" variabletype="">Trade Allowed</field>
+                <value name="VALUE">
+                  <block type="logic_boolean" id="trade_allowed_false_ou">
+                    <field name="BOOL">FALSE</field>
+                  </block>
+                </value>
+              </block>
+            </next>
+          </block>
+        </statement>
+        <next>
+          <block type="controls_if" id="check_result_win_ou">
+            <value name="IF0">
+              <block type="contract_check_result" id="win_condition_ou">
+                <field name="CHECK_RESULT">win</field>
+              </block>
+            </value>
+            <statement name="DO0">
+              <block type="variables_set" id="reset_losses_ou">
+                <field name="VAR" id="consecutive_losses" variabletype="">Consecutive Losses</field>
+                <value name="VALUE">
+                  <block type="math_number" id="loss_reset_zero_ou">
+                    <field name="NUM">0</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="variables_set" id="reallow_trade_ou">
+                    <field name="VAR" id="trade_allowed" variabletype="">Trade Allowed</field>
+                    <value name="VALUE">
+                      <block type="logic_boolean" id="trade_allowed_true_after_win_ou">
+                        <field name="BOOL">TRUE</field>
+                      </block>
+                    </value>
+                  </block>
+                </next>
+              </block>
+            </statement>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+</xml>
+
